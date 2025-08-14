@@ -1,0 +1,40 @@
+# Maven build directory
+target/
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+
+# VS Code project files
+.vscode/
+
+# Eclipse project files
+*.classpath
+*.project
+.settings/
+
+# Java class files
+*.class
+
+# Log files
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+
+# Build output
+out/
+
+# Application properties (chỉ ignore file chứa thông tin nhạy cảm, tùy dự án)
+# application-*.properties
+
+# Maven wrapper files (thường nên giữ lại mvnw, mvnw.cmd và .mvn/)
+# Nếu muốn ignore thì thêm:
+# mvnw
+# mvnw.cmd
+# .mvn/
