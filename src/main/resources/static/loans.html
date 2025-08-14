@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Mượn/Trả - Thư Viện Số</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-book-open me-2"></i>
+                Thư Viện Số
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="books.html">
+                            <i class="fas fa-book me-1"></i>Quản Lý Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="members.html">
+                            <i class="fas fa-users me-1"></i>Thành Viên
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="loans.html">
+                            <i class="fas fa-exchange-alt me-1"></i>Mượn/Trả
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-5 fw-bold">
+                    <i class="fas fa-exchange-alt text-info me-3"></i>
+                    Quản Lý Mượn/Trả Sách
+                </h1>
+                <p class="lead text-muted">Xử lý các giao dịch mượn và trả sách của thành viên</p>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-book-open text-warning"></i>
+                    </div>
+                    <h3 class="stats-number" id="borrowedCount">0</h3>
+                    <p class="stats-label">Đang Mượn</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                    <h3 class="stats-number" id="returnedCount">0</h3>
+                    <p class="stats-label">Đã Trả</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                    </div>
+                    <h3 class="stats-number" id="overdueCount">0</h3>
+                    <p class="stats-label">Quá Hạn</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-list text-info"></i>
+                    </div>
+                    <h3 class="stats-number" id="totalLoans">0</h3>
+                    <p class="stats-label">Tổng Giao Dịch</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter and Add Section -->
+        <div class="search-container">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="filterStatus" class="form-label">Trạng thái</label>
+                    <select class="form-select" id="filterStatus">
+                        <option value="">Tất cả</option>
+                        <option value="BORROWED">Đang mượn</option>
+                        <option value="RETURNED">Đã trả</option>
+                        <option value="OVERDUE">Quá hạn</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filterMember" class="form-label">Thành viên</label>
+                    <select class="form-select" id="filterMember">
+                        <option value="">Tất cả thành viên</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="filterBook" class="form-label">Sách</label>
+                    <select class="form-select" id="filterBook">
+                        <option value="">Tất cả sách</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100" onclick="filterLoans()">
+                        <i class="fas fa-filter me-2"></i>Lọc
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-auto">
+                    <button class="btn btn-success" onclick="openBorrowModal()">
+                        <i class="fas fa-plus me-2"></i>Mượn Sách
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-outline-primary" onclick="loadLoans()">
+                        <i class="fas fa-sync-alt me-2"></i>Làm mới
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-outline-warning" onclick="showOverdueLoans()">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Sách Quá Hạn
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loans Table -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Thành Viên</th>
+                            <th>Sách</th>
+                            <th>Ngày Mượn</th>
+                            <th>Ngày Trả</th>
+                            <th>Trạng Thái</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loansTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="loading">
+                                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                    <p class="mt-2">Đang tải dữ liệu...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Borrow Book Modal -->
+    <div class="modal fade" id="borrowModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-book-open me-2"></i>Mượn Sách
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="borrowForm">
+                        <div class="mb-3">
+                            <label for="borrowMember" class="form-label">Chọn Thành Viên *</label>
+                            <select class="form-select" id="borrowMember" required>
+                                <option value="">Chọn thành viên...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="borrowBook" class="form-label">Chọn Sách *</label>
+                            <select class="form-select" id="borrowBook" required>
+                                <option value="">Chọn sách...</option>
+                            </select>
+                            <div class="form-text">Chỉ hiển thị sách có sẵn</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="borrowDate" class="form-label">Ngày Mượn</label>
+                            <input type="date" class="form-control" id="borrowDate" readonly>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" onclick="processBorrow()">
+                        <i class="fas fa-check me-2"></i>Mượn Sách
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Confirmation Modal -->
+    <div class="modal fade" id="returnModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-undo me-2"></i>Xác Nhận Trả Sách
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xử lý trả sách này không?</p>
+                    <div id="loanToReturn"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" onclick="confirmReturnBook()">
+                        <i class="fas fa-check me-2"></i>Xác Nhận Trả
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loan Details Modal -->
+    <div class="modal fade" id="loanDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-info-circle me-2"></i>Chi Tiết Giao Dịch
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="loanDetailsContent">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/api.js"></script>
+    <script src="js/loans.js"></script>
+</body>
+</html>

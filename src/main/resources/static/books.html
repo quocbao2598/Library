@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Sách - Thư Viện Số</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-book-open me-2"></i>
+                Thư Viện Số
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="books.html">
+                            <i class="fas fa-book me-1"></i>Quản Lý Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="members.html">
+                            <i class="fas fa-users me-1"></i>Thành Viên
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="loans.html">
+                            <i class="fas fa-exchange-alt me-1"></i>Mượn/Trả
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-5 fw-bold">
+                    <i class="fas fa-book text-primary me-3"></i>
+                    Quản Lý Sách
+                </h1>
+                <p class="lead text-muted">Thêm, sửa, xóa và tìm kiếm sách trong thư viện</p>
+            </div>
+        </div>
+
+        <!-- Search and Add Section -->
+        <div class="search-container">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="searchTitle" class="form-label">Tìm theo tên sách</label>
+                    <input type="text" class="form-control" id="searchTitle" placeholder="Nhập tên sách...">
+                </div>
+                <div class="col-md-3">
+                    <label for="searchAuthor" class="form-label">Tìm theo tác giả</label>
+                    <input type="text" class="form-control" id="searchAuthor" placeholder="Nhập tên tác giả...">
+                </div>
+                <div class="col-md-2">
+                    <label for="searchGenre" class="form-label">Thể loại</label>
+                    <select class="form-select" id="searchGenre">
+                        <option value="">Tất cả</option>
+                        <option value="Văn học">Văn học</option>
+                        <option value="Khoa học">Khoa học</option>
+                        <option value="Lịch sử">Lịch sử</option>
+                        <option value="Công nghệ">Công nghệ</option>
+                        <option value="Giáo dục">Giáo dục</option>
+                        <option value="Kinh tế">Kinh tế</option>
+                        <option value="Nghệ thuật">Nghệ thuật</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="filterAvailable" class="form-label">Trạng thái</label>
+                    <select class="form-select" id="filterAvailable">
+                        <option value="">Tất cả</option>
+                        <option value="true">Có sẵn</option>
+                        <option value="false">Đã mượn</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="searchBooks()">
+                        <i class="fas fa-search me-2"></i>Tìm kiếm
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-auto">
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addBookModal">
+                        <i class="fas fa-plus me-2"></i>Thêm Sách Mới
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-outline-primary" onclick="loadBooks()">
+                        <i class="fas fa-sync-alt me-2"></i>Làm mới
+                    </button>
+                </div>
+                <div class="col-auto ms-auto">
+                    <span class="text-muted">Tổng số sách: <span id="totalBooksCount">0</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Table -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Sách</th>
+                            <th>Tác Giả</th>
+                            <th>Thể Loại</th>
+                            <th>Năm XB</th>
+                            <th>Trạng Thái</th>
+                            <th>Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booksTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center">
+                                <div class="loading">
+                                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                    <p class="mt-2">Đang tải dữ liệu...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Book Modal -->
+    <div class="modal fade" id="addBookModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bookModalTitle">
+                        <i class="fas fa-plus-circle me-2"></i>Thêm Sách Mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bookForm">
+                        <input type="hidden" id="bookId">
+                        
+                        <div class="mb-3">
+                            <label for="bookTitle" class="form-label">Tên Sách *</label>
+                            <input type="text" class="form-control" id="bookTitle" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bookAuthor" class="form-label">Tác Giả *</label>
+                            <input type="text" class="form-control" id="bookAuthor" required>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bookGenre" class="form-label">Thể Loại *</label>
+                                    <select class="form-select" id="bookGenre" required>
+                                        <option value="">Chọn thể loại</option>
+                                        <option value="Văn học">Văn học</option>
+                                        <option value="Khoa học">Khoa học</option>
+                                        <option value="Lịch sử">Lịch sử</option>
+                                        <option value="Công nghệ">Công nghệ</option>
+                                        <option value="Giáo dục">Giáo dục</option>
+                                        <option value="Kinh tế">Kinh tế</option>
+                                        <option value="Nghệ thuật">Nghệ thuật</option>
+                                        <option value="Nghệ thuật">Triết Học</option>
+                                        <option value="Khác">Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bookYear" class="form-label">Năm Xuất Bản *</label>
+                                    <input type="number" class="form-control" id="bookYear" min="1000" max="2024" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="bookAvailable" checked>
+                                <label class="form-check-label" for="bookAvailable">
+                                    Sách có sẵn để mượn
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBook()">
+                        <i class="fas fa-save me-2"></i>Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteBookModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-danger me-2"></i>Xác Nhận Xóa
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa sách này không?</p>
+                    <div class="alert alert-warning">
+                        <strong>Lưu ý:</strong> Thao tác này không thể hoàn tác!
+                    </div>
+                    <div id="bookToDelete"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDeleteBook()">
+                        <i class="fas fa-trash me-2"></i>Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/api.js"></script>
+    <script src="js/books.js"></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Thư Viện</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-book-open me-2"></i>
+                Thư Viện Số
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <i class="fas fa-home me-1"></i>Trang Chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="books.html">
+                            <i class="fas fa-book me-1"></i>Quản Lý Sách
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="members.html">
+                            <i class="fas fa-users me-1"></i>Thành Viên
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="loans.html">
+                            <i class="fas fa-exchange-alt me-1"></i>Mượn/Trả
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold text-white mb-4">
+                        Chào mừng đến với<br>
+                        <span class="text-warning">Hệ Thống Quản Lý Thư Viện</span>
+                    </h1>
+                    <p class="lead text-white-50 mb-4">
+                        Quản lý sách, thành viên và giao dịch mượn trả một cách hiệu quả và thông minh.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <a href="books.html" class="btn btn-warning btn-lg px-4">
+                            <i class="fas fa-book me-2"></i>Xem Sách
+                        </a>
+                        <a href="members.html" class="btn btn-outline-light btn-lg px-4">
+                            <i class="fas fa-user-plus me-2"></i>Thành Viên
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="hero-image">
+                        <i class="fas fa-book-reader display-1 text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-book text-primary"></i>
+                        </div>
+                        <h3 class="stats-number" id="totalBooks">0</h3>
+                        <p class="stats-label">Tổng Số Sách</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-users text-success"></i>
+                        </div>
+                        <h3 class="stats-number" id="totalMembers">0</h3>
+                        <p class="stats-label">Thành Viên</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-exchange-alt text-info"></i>
+                        </div>
+                        <h3 class="stats-number" id="totalLoans">0</h3>
+                        <p class="stats-label">Giao Dịch Mượn</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon">
+                            <i class="fas fa-check-circle text-warning"></i>
+                        </div>
+                        <h3 class="stats-number" id="availableBooks">0</h3>
+                        <p class="stats-label">Sách Có Sẵn</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Thao Tác Nhanh</h2>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="action-card h-100">
+                        <div class="action-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <h4>Thêm Sách Mới</h4>
+                        <p>Thêm sách mới vào thư viện với đầy đủ thông tin</p>
+                        <a href="books.html" class="btn btn-primary">Thêm Sách</a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="action-card h-100">
+                        <div class="action-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h4>Đăng Ký Thành Viên</h4>
+                        <p>Đăng ký thành viên mới cho thư viện</p>
+                        <a href="members.html" class="btn btn-success">Đăng Ký</a>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="action-card h-100">
+                        <div class="action-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <h4>Quản Lý Mượn/Trả</h4>
+                        <p>Xử lý các giao dịch mượn và trả sách</p>
+                        <a href="loans.html" class="btn btn-info">Quản Lý</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Hoạt Động Gần Đây</h2>
+            <div class="row">
+                <div class="col-lg-8 mx-auto">
+                    <div class="activity-list" id="recentActivity">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>Đang tải dữ liệu...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-book-open me-2"></i>Thư Viện Số</h5>
+                    <p class="mb-0">Hệ thống quản lý thư viện hiện đại và thông minh</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">&copy; 2024 Library Management System. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
