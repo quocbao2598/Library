@@ -73,7 +73,6 @@ jobs:
     - name: 🔑 Login to Docker Hub
       uses: docker/login-action@v3
       with:
-        registry: ${{ env.REGISTRY }}
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
         
@@ -135,14 +134,15 @@ jobs:
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-        format: 'sarif'
-        output: 'trivy-results.sarif'
+        format: 'table'
+        output: 'trivy-results.txt'
         
-    - name: 📊 Upload Trivy scan results to GitHub Security tab
-      uses: github/codeql-action/upload-sarif@v3
+    - name: 📊 Upload Trivy scan results as artifact
+      uses: actions/upload-artifact@v4
       if: always()
       with:
-        sarif_file: 'trivy-results.sarif'
+        name: trivy-security-scan
+        path: trivy-results.txt
 
   # Job 4: Deploy notification
   deploy-notification:
