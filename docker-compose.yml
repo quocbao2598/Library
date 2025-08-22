@@ -45,14 +45,17 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.3
     container_name: library-logstash
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
     ports:
       - "5044:5044"   # default beat input port
       - "9600:9600"   # monitoring API
     volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/config/logstash.conf:/etc/logstash/conf.d/logstash.conf:ro,Z
+      - ./logstash/pipeline/spring-app.log:/var/log/spring-app.log:ro,Z
     environment:
       LS_JAVA_OPTS: "-Xms512m -Xmx512m"
-      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+    depends_on:
+      - elasticsearch
 
 volumes:
   pgdata:
