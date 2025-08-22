@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: library-postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: librarydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-0609}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Library Management Application
+  library-app:
+    image: ${DOCKER_IMAGE:-your-username/library-management:latest}
+    container_name: library-app-prod
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Database connection
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/librarydb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-0609}
+      
+      # JPA settings
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: false
+      
+      # Elasticsearch (optional - comment out if not using)
+      # SPRING_ELASTICSEARCH_URIS: http://elasticsearch:9200
+      
+      # Logging
+      LOGGING_LEVEL_ROOT: INFO
+      LOGGING_LEVEL_COM_MANAGEMENT_LIBRARY: INFO
+      
+      # Actuator
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,metrics
+      
+      # JVM settings
+      JAVA_OPTS: "-Xms512m -Xmx1024m -Djava.security.egd=file:/dev/./urandom"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Elasticsearch (Optional - uncomment if needed)
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
+  #   container_name: library-elasticsearch-prod
+  #   environment:
+  #     - discovery.type=single-node
+  #     - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  #     - xpack.security.enabled=false
+  #   ports:
+  #     - "9200:9200"
+  #   volumes:
+  #     - esdata_prod:/usr/share/elasticsearch/data
+
+  # Kibana (Optional - uncomment if needed)
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:8.11.3
+  #   container_name: library-kibana-prod
+  #   ports:
+  #     - "5601:5601"
+  #   environment:
+  #     ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
+  #   depends_on:
+  #     - elasticsearch
+
+  # Logstash (Optional - uncomment if needed)
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:8.11.3
+  #   container_name: library-logstash-prod
+  #   volumes:
+  #     - ./logstash/config/logstash.conf:/etc/logstash/conf.d/logstash.conf:ro,Z
+  #     - ./logs:/var/log:Z
+  #   environment:
+  #     LS_JAVA_OPTS: "-Xms256m -Xmx256m"
+  #   depends_on:
+  #     - elasticsearch
+
+volumes:
+  pgdata_prod:
+  # esdata_prod:  # Uncomment if using Elasticsearch
+
+networks:
+  default:
+    name: library-network-prod

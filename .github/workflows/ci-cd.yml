@@ -1,0 +1,173 @@
+name: 🚀 Library Management CI/CD
+
+# Trigger workflow khi có push/PR vào main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Environment variables cho toàn bộ workflow
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: library-management
+
+jobs:
+  # Job 1: Test và Build ứng dụng
+  test-and-build:
+    name: 🧪 Test & Build Application
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checkout source code
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    # Setup Java 17
+    - name: ☕ Set up Java 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    # Cache Maven dependencies để build nhanh hơn
+    - name: 📦 Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    # Chạy tests
+    - name: 🧪 Run tests
+      run: mvn clean test
+      
+    # Build application
+    - name: 🔨 Build application
+      run: mvn clean package -DskipTests
+      
+    # Upload JAR artifact để job khác sử dụng
+    - name: 📤 Upload JAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: jar-artifact
+        path: target/*.jar
+        
+  # Job 2: Build và Push Docker Image
+  docker-build-push:
+    name: 🐳 Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: test-and-build  # Chỉ chạy khi test-and-build thành công
+    if: github.ref == 'refs/heads/main'  # Chỉ build image cho main branch
+    
+    steps:
+    # Checkout source code
+    - name: 📥 Checkout repository
+      uses: actions/checkout@v4
+      
+    # Setup Docker Buildx để multi-platform build
+    - name: 🔧 Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    # Login vào Docker Hub
+    - name: 🔑 Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        
+    # Extract metadata cho tags và labels
+    - name: 🏷️ Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+          
+    # Build và push Docker image
+    - name: 🚀 Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        
+    # Comment PR với image info (nếu là PR)
+    - name: 💬 Comment PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const output = `🐳 Docker Image built successfully!
+          
+          **Image**: \`${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\`
+          
+          **Pull command**:
+          \`\`\`bash
+          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          \`\`\``;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          });
+
+  # Job 3: Security scan
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: docker-build-push
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 🔍 Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: 📊 Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Job 4: Deploy notification
+  deploy-notification:
+    name: 📢 Deploy Notification
+    runs-on: ubuntu-latest
+    needs: [test-and-build, docker-build-push]
+    if: always() && github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: 📢 Deployment Summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Tests | ${{ needs.test-and-build.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Docker Build | ${{ needs.docker-build-push.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Image | \`${{ secrets.DOCKER_HUB_USERNAME }}/library-management:latest\` |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🏃‍♂️ Quick Deploy Commands" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+        echo "# Pull latest image" >> $GITHUB_STEP_SUMMARY
+        echo "docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/library-management:latest" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "# Run container" >> $GITHUB_STEP_SUMMARY
+        echo "docker run -d -p 8080:8080 \\" >> $GITHUB_STEP_SUMMARY
+        echo "  --name library-app \\" >> $GITHUB_STEP_SUMMARY
+        echo "  ${{ secrets.DOCKER_HUB_USERNAME }}/library-management:latest" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
