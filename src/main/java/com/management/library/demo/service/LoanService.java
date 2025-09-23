@@ -124,4 +124,12 @@ public class LoanService {
     public List<Loan> getOverdueLoans() {
         return findOverdueLoans();
     }
+    
+    public List<Loan> getLoansByUserId(Long userId) {
+        // Thực hiện logic để lấy loans theo user ID
+        // Có thể cần join với member table hoặc có thêm mapping
+        return loanRepository.findAll().stream()
+                .filter(loan -> loan.getMember() != null && loan.getMember().getId().equals(userId))
+                .toList();
+    }
 }
